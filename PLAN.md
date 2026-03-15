@@ -121,7 +121,7 @@ Each step lists the agents that may claim it, in priority order: `[Primary|Fallb
 
 ### Phase 3 — MCP Server Core
 
-- [ ] `[C|K]` Design capability registration pattern — how tools and resources attach to `mcp.Server`
+- [x] `[C|K]` Design capability registration pattern — how tools and resources attach to `mcp.Server`
 - [ ] `[O|G]` Implement `internal/server/server.go`: create `mcp.NewServer(name, version)`, set capabilities
 - [ ] `[O|G]` Implement `internal/tools/tools.go`: `RegisterAll(s *mcp.Server)` calls each tool's register func
 - [ ] `[O|G]` Implement `internal/resources/resources.go`: `RegisterAll(s *mcp.Server)` calls each resource's register func

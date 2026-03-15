@@ -1,6 +1,8 @@
 module github.com/SETA1609/my-mcp-agent-orchestrator
 
-go 1.18
+go 1.23.0
+
+toolchain go1.23.5
 
 require github.com/mark3labs/mcp-go v0.45.0
 

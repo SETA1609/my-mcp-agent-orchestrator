@@ -1,11 +1,14 @@
 // Package resources registers all MCP resources with the server.
+//
+// To add a new resource:
+//  1. Create internal/resources/<name>.go
+//  2. Implement Register(s *server.MCPServer) calling s.AddResource(definition, handler)
+//  3. Add RegisterName(s) to RegisterAll below — no other files need to change.
 package resources
 
-import "github.com/mark3labs/mcp-go/server"
+import mcpserver "github.com/mark3labs/mcp-go/server"
 
 // RegisterAll adds every resource in this package to s.
-// Phase 3 [O|G]: call each resource's Register function here.
-func RegisterAll(s *server.MCPServer) {
-	// health.Register(s)
-	panic("not implemented")
+func RegisterAll(s *mcpserver.MCPServer) {
+	RegisterHealth(s)
 }
