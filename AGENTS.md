@@ -10,35 +10,78 @@ This is the master coordination document. Every agent working in this repository
 |---------|----------------|-----------------------|--------------------------------------------------|-----------------------------------------------------------|
 | `[C]`   | Claude         | Claude Code CLI       | [docs/agents/CLAUDE.md](docs/agents/CLAUDE.md)   | Architecture, planning, new abstractions, framework design |
 | `[G]`   | Gemini         | Gemini CLI            | [docs/agents/GEMINI.md](docs/agents/GEMINI.md)   | Refactoring, extending abstractions, UI/UX, minor tasks   |
-| `[K]`   | Codex          | OpenAI Codex          | [docs/agents/CODEX.md](docs/agents/CODEX.md)     | Planning, complex algorithms, new systems                 |
-| `[P]`   | Copilot        | GitHub Copilot        | [docs/agents/COPILOT.md](docs/agents/COPILOT.md) | Boilerplate, pattern completion, simple utilities         |
+| `[K]`   | Codex          | OpenAI Codex          | [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) | Planning, complex algorithms, new systems (runs via Copilot) |
+| `[P]`   | Copilot        | GitHub Copilot        | [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) | Boilerplate, pattern completion, simple utilities (defined in OpenCode file) |
 | `[O]`   | OpenCode       | OpenCode CLI          | [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) | Full-stack implementation, code generation              |
-| `[GF]`  | Grok Code Fast | Grok (fast mode)      | —                                                | Speed-first code generation, quick single-file fixes      |
-| `[GR]`  | Grok 4.20      | Grok 4.20             | —                                                | Reasoning-heavy tasks, deep code analysis                 |
+| `[GF]`  | Grok Code Fast | Grok (fast mode)      | [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) | Speed-first code generation, quick single-file fixes (runs via Copilot) |
+| `[GR]`  | Grok 4.20      | Grok 4.20             | [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) | Reasoning-heavy tasks, deep code analysis (runs via OpenCode) |
 | `[PK]`  | Pickle         | OpenCode / Pickle     | —                                                | Experimental, rapid prototyping                           |
 | `[D]`   | Human          | —                     | —                                                | Final decisions, unblocking, planning approval            |
 
 ---
 
-## Task-Type Assignment Table
+## Agent Strength Guide
 
-Use this to quickly find which agent(s) should own a given type of work.
+Use this table at **planning time** to assign phases to agents whose strengths match the type of work. This is a guide — it does not override the `[Primary|Fallback]` notation in `PLAN.md`.
 
-| Task type                          | Primary   | Fallback   | Notes                                                         |
-|------------------------------------|-----------|------------|---------------------------------------------------------------|
-| Architecture / new abstractions    | `[C]`     | `[K]`      | Must produce an interface before others implement             |
-| New algorithm / data structure     | `[K]`     | `[C]`      | Accompanies with a proposal for `[D]` review                  |
-| Full-stack feature implementation  | `[O]`     | `[G]`      | Only after `[C]`/`[K]` defines the interface                  |
-| Boilerplate / repetitive patterns  | `[P]`     | `[O]`      | No novel design; follow existing patterns only                |
-| Refactoring existing code          | `[G]`     | `[O]`      | Must not change public API without `[C]`/`[K]` sign-off       |
-| UI / view-layer features           | `[G]`     | `[O]`      | Must not alter shared-state interfaces                        |
-| Quick single-file fix or patch     | `[GF]`    | `[P]`      | In-and-out; no design changes                                 |
-| Deep reasoning / analysis          | `[GR]`    | `[K]`      | Use when problem requires multi-step logical deduction        |
-| Rapid prototype / throwaway spike  | `[PK]`    | `[GF]`     | Not for production; produces a working sketch only            |
-| Tests (unit + integration)         | All       | —          | Each agent writes tests for its own changes                   |
-| `docs/` updates                    | All       | —          | Keep in sync with code; agent that changed code updates docs  |
-| `PLAN.md` writes / updates         | `[C]`     | `[K]`, `[D]` | Only after `[D]` approves the plan                          |
-| Irreversible architectural decision| `[D]`     | —          | Human only; no fallback                                       |
+| Task type                          | Best fit   | Fallback   | Notes                                                         |
+|------------------------------------|------------|------------|---------------------------------------------------------------|
+| Architecture / new abstractions    | `[C]`      | `[K]`      | Must produce an interface before others implement             |
+| New algorithm / data structure     | `[K]`      | `[C]`      | Accompanies with a proposal for `[D]` review                  |
+| Full-stack feature implementation  | `[O]`      | `[G]`      | Only after `[C]`/`[K]` defines the interface                  |
+| Boilerplate / repetitive patterns  | `[P]`      | `[O]`      | No novel design; follow existing patterns only                |
+| Refactoring existing code          | `[G]`      | `[O]`      | Must not change public API without `[C]`/`[K]` sign-off       |
+| UI / view-layer features           | `[G]`      | `[O]`      | Must not alter shared-state interfaces                        |
+| Quick single-file fix or patch     | `[GF]`     | `[P]`      | In-and-out; no design changes                                 |
+| Deep reasoning / analysis          | `[GR]`     | `[K]`      | Use when problem requires multi-step logical deduction        |
+| Rapid prototype / throwaway spike  | `[PK]`     | `[GF]`     | Not for production; produces a working sketch only            |
+| Tests (unit + integration)         | All        | —          | Each agent writes tests for its own changes                   |
+| `docs/` updates                    | All        | —          | Keep in sync with code; agent that changed code updates docs  |
+| `PLAN.md` writes / updates         | `[C]`      | `[K]`, `[D]` | Only after `[D]` approves the plan                          |
+| Irreversible architectural decision| `[D]`      | —          | Human only; no fallback                                       |
+
+---
+
+## Planning for Parallelism
+
+When writing or updating `PLAN.md`, the goal is maximum concurrent throughput:
+
+### The one gate: Phase 1
+
+**Phase 1 is the only serialization point.** It must define every shared interface, module boundary, and scaffold file that later phases depend on. No other agent should start implementation work until Phase 1 is complete.
+
+Phase 1 deliverables (at minimum):
+- Go module initialised (`go.mod`, `go.sum`)
+- All `internal/` package skeletons created (empty files with correct `package` declarations)
+- Public interfaces defined (e.g. `Transport`, capability registration signatures)
+- Dependency pinned (`go.mod` with correct SDK version)
+
+### After Phase 1: full parallelism
+
+Every phase after Phase 1 must be designable to run concurrently. Achieve this by:
+
+1. **Assign distinct file areas per phase.** No two phases should own the same file. Use the File Ownership table to verify before finalising the plan.
+2. **Match phase type to agent strength.** Use the Agent Strength Guide above. A phase for boilerplate goes to `[P]`; a phase for reasoning-heavy design goes to `[GR]` or `[K]`.
+3. **No cross-phase dependencies (after Phase 1).** If Phase 3 requires Phase 2 output, either collapse them or move the dependency into Phase 1.
+4. **All agents should be able to start their phase simultaneously** once Phase 1 merges to `main`.
+
+### Example layout
+
+```
+Phase 1  [C|K]   — scaffold: interfaces, stubs, module init        ← GATE
+Phase 2  [O|G]   — transport layer (internal/transport/)           ┐
+Phase 3  [P|GF]  — config + logging (internal/config/, cmd/)       │ all run
+Phase 4  [K|C]   — algorithms / complex tools (internal/tools/)    │ in parallel
+Phase 5  [O|G]   — Docker packaging (Dockerfile, compose)          │ after Phase 1
+Phase 6  [K|C]   — test harness + CI (.github/, tests/)            ┘
+```
+
+### Checklist before finalising a plan
+
+- [ ] Phase 1 covers every shared contract other phases depend on
+- [ ] Each post-Phase-1 phase touches a distinct directory or file set
+- [ ] Each phase is assigned to an agent whose strength matches the work type
+- [ ] No phase after Phase 1 lists another post-Phase-1 phase as a prerequisite
 
 ---
 
@@ -104,13 +147,13 @@ Example progression:
 - Designs and implements complex algorithms and data structures
 - Produces detailed implementation proposals for human review
 - Plans new subsystems with clear interfaces for other agents to build against
-- See [docs/agents/CODEX.md](docs/agents/CODEX.md) for full detail
+- See [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) for full detail (runs via Copilot)
 
 ### `[P]` Copilot
 - Fills in boilerplate and repeat patterns already established
 - Implements simple, self-contained utilities (single file)
 - **Cannot** design APIs, introduce abstractions, or touch shared/critical code without prior `[C]`/`[K]` authorization
-- See [docs/agents/COPILOT.md](docs/agents/COPILOT.md) for full detail
+- See [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) for full detail (Copilot rules live there — OpenCode always reads it)
 
 ### `[O]` OpenCode
 - Implements features end-to-end once interfaces are defined by `[C]` or `[K]`
@@ -123,11 +166,13 @@ Example progression:
 - Speed-first: writes or fixes single files quickly with minimum overhead
 - Best for quick patches, filling in function bodies, one-off scripts
 - **Cannot** introduce new abstractions or design cross-file patterns
+- See [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) for full detail (runs via Copilot)
 
 ### `[GR]` Grok 4.20
 - Reasoning-heavy tasks: multi-step deduction, root-cause analysis, algorithm design
 - Can propose design changes but must hand off to `[C]`/`[K]` for implementation contracts
 - Use when a task requires careful logical reasoning, not just code generation
+- See [docs/agents/OPENCODE.md](docs/agents/OPENCODE.md) for full detail (runs via OpenCode)
 
 ### `[PK]` Pickle
 - Rapid prototyping and experimental spikes
