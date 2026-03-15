@@ -98,17 +98,17 @@ Each step lists the agents that may claim it, in priority order: `[Primary|Fallb
 
 #### 2a — stdio transport
 
-- [G] `[O|G]` Use `mcp-go`'s built-in stdio transport: `server.ServeStdio(s)`
+- [x] `[O|G]` Use `mcp-go`'s built-in stdio transport: `server.ServeStdio(s)`
 
 #### 2b — HTTP + SSE transport
 
 - [x] `[K|C]` Confirm `mcp-go` SSE handler setup — `server.NewSSEServer(s, server.WithBaseURL(baseURL))` + `Start(addr)` / `Shutdown(ctx)`
-- [G] `[O|G]` Implement `internal/` HTTP transport: spin up `mcp-go` SSE server on configured host/port
-- [G] `[O|G]` Implement graceful shutdown (SIGTERM via `signal.NotifyContext`)
+- [x] `[O|G]` Implement `internal/` HTTP transport: spin up `mcp-go` SSE server on configured host/port
+- [x] `[O|G]` Implement graceful shutdown (SIGTERM via `signal.NotifyContext`)
 
 #### 2c — Transport dispatch
 
-- [G] `[O|P]` Implement dispatch in `cmd/server/main.go`:
+- [x] `[O|P]` Implement dispatch in `cmd/server/main.go`:
   ```go
   switch cfg.Transport {
   case "stdio":
