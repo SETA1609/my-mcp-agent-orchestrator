@@ -149,11 +149,11 @@ _File area: `Dockerfile`, `.dockerignore`, `docker-compose.yml`_
 
 Steps 5.1–5.3 are independent of each other and may be claimed in parallel. Step 5.4 requires 5.1 to be complete.
 
-- [ ] `[C|K]` **5.1** Write multi-stage `Dockerfile` (strategy decisions inline):
+- [x] `[C|K]` **5.1** Write multi-stage `Dockerfile` (strategy decisions inline):
   1. **Builder**: `golang:1.23-alpine` — `CGO_ENABLED=0 go build -o /server ./cmd/server`
   2. **Runtime**: `gcr.io/distroless/static:nonroot` — copy `/server`; default `CMD` env `MCP_TRANSPORT=http`
-- [ ] `[P|GF]` **5.2** Add `.dockerignore` (exclude `.git`, `tests/`, `docs/`)
-- [O] `[P|O]` **5.3** Add `docker-compose.yml` for local development convenience
+- [x] `[P|GF]` **5.2** Add `.dockerignore` (exclude `.git`, `tests/`, `docs/`)
+- [x] `[P|O]` **5.3** Add `docker-compose.yml` for local development convenience
 - [ ] `[D]` **5.4** Validate image size target: **< 20 MB**
 
 > **stdio users** run the binary directly — no Docker required:
@@ -169,8 +169,8 @@ _File area: `internal/**/*_test.go`, `tests/`_
 
 Steps 6.1 and 6.2 are independent and may be claimed in parallel.
 
-- [ ] `[O|G]` **6.1** Write unit tests for each tool and resource handler (`_test.go` alongside source)
-- [ ] `[K|C]` **6.2** Write integration tests — design harness inline (`tests/stdio_test.go`, `tests/http_test.go`): spin up binary over pipes (stdio) and `httptest.Server` (HTTP)
+- [x] `[O|G]` **6.1** Write unit tests for each tool and resource handler (`_test.go` alongside source)
+- [x] `[K|C]` **6.2** Write integration tests — design harness inline (`tests/stdio_test.go`, `tests/http_test.go`): spin up binary over pipes (stdio) and `httptest.Server` (HTTP)
 
 ### Phase 7 — CI Pipeline
 
