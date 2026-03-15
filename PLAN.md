@@ -86,7 +86,6 @@ Each step lists the agents that may claim it, in priority order: `[Primary|Fallb
 ### Phase 1 — Scaffold & Tooling
 
 - [x] `[C|K]` Design module boundaries and transport interface — define the contract all other agents build against
-- [ ] `[C|K]` Review the previous taks if you didnt do it
 - [x] `[O|G]` Initialise Go module: `go mod init github.com/SETA1609/my-mcp-agent-orchestrator`
 - [x] `[O|G]` Create `cmd/server/main.go` entry-point and `internal/` package skeleton
 - [x] `[P|GF]` Add `go.mod` dependency: `github.com/mark3labs/mcp-go`
@@ -103,7 +102,7 @@ Each step lists the agents that may claim it, in priority order: `[Primary|Fallb
 
 #### 2b — HTTP + SSE transport
 
-- [ ] `[K|C]` Confirm `mcp-go` SSE handler setup — `server.NewSSEServer(s, baseURL)` shape
+- [x] `[K|C]` Confirm `mcp-go` SSE handler setup — `server.NewSSEServer(s, server.WithBaseURL(baseURL))` + `Start(addr)` / `Shutdown(ctx)`
 - [ ] `[O|G]` Implement `internal/` HTTP transport: spin up `mcp-go` SSE server on configured host/port
 - [ ] `[O|G]` Implement graceful shutdown (SIGTERM via `signal.NotifyContext`)
 
